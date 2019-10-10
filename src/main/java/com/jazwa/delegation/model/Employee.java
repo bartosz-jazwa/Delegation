@@ -8,7 +8,7 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
     private String firstName;
-    private String surname;
+    private String lastName;
     private String position;
     private String login;
     private String password;

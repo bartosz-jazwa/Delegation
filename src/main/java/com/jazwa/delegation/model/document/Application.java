@@ -2,12 +2,16 @@ package com.jazwa.delegation.model.document;
 
 import com.jazwa.delegation.model.Employee;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+@Entity
 public class Application {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long number;
     private LocalDate applicationDate;
     private Employee employee;
@@ -22,11 +26,11 @@ public class Application {
     private List<PlanItem> plan;
 
     public List<PlanItem> initPlan(LocalDate start, LocalDate finish){
-        List<PlanItem> list = new ArrayList<>();
+        List<PlanItem> planList = new ArrayList<>();
 
         for (LocalDate i = start; i.isBefore(finish); i.plusDays(1)) {
-            list.add(new PlanItem(i,""));
+            planList.add(new PlanItem(i,""));
         }
-        return list;
+        return planList;
     }
 }
