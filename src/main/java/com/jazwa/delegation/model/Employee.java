@@ -12,6 +12,7 @@ public class Employee {
     private String position;
     private String login;
     private String password;
+    private String email;
     private Long cardNumber;
     @ManyToOne
     private Department department;

@@ -2,11 +2,7 @@ package com.jazwa.delegation.model.document;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.jazwa.delegation.model.Employee;
-import currencies.ExchangeRates;
-import database.entity.Employee;
-import database.entity.Project;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -60,41 +56,6 @@ public class Delegation {
         return diet;
     }
 
-    public Float getExchangeRate(LocalDate date, Currency currency){
-        String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String currencyCode = currency.getCurrencyCode();
-        String urlWithCurrencyAndDate = "http://api.nbp.pl/api/exchangerates/rates/a/"+currencyCode+"/"+formattedDate+"/?format=xml";
-        URL nbpTableUrl = null;
-        try {
-            nbpTableUrl = new URL(urlWithCurrencyAndDate);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        ObjectMapper objectMapper =  new XmlMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
-        ExchangeRates exchangeRate = null;
-        try {
-            exchangeRate = objectMapper.readValue(nbpTableUrl, ExchangeRates.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return exchangeRate.getRates().get(0).getRate();
-    }
-
-    public void calculateSumToPay(){
-        Double sumInPln;
-        Float dietRate = 50.0f;  //dodać czytanie z pliku
-        Float exchangeRate = getExchangeRate(this.fileDate,Currency.getInstance(country));
-
-        Float dietInForeignCurrency = calcDiet(dietRate);
-        Float totalDietInPln = dietInForeignCurrency*exchangeRate;
-
-        Double sumOfBills = bills.stream()
-                .filter(Bill::isPayment)
-                .mapToDouble(b -> getExchangeRate(b.getDate(),b.getCurrency())*b.getValue())
-                .sum();
-        sumInPln = totalDietInPln + sumOfBills;
-    }
-
     public long getNumber() {
         return number;
     }
@@ -109,14 +70,6 @@ public class Delegation {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
     }
 
     public Locale getCountry() {

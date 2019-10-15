@@ -12,7 +12,7 @@ public class Department {
     @NotNull
     private String name;
     private Employee head;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "employee")
     private Set<Employee> employees = new HashSet<>();
 
     public Department() {
