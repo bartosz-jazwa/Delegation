@@ -14,6 +14,7 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long number;
     private LocalDate applicationDate;
+    @ManyToOne
     private Employee employee;
     private String project;
     private Locale country;

@@ -7,5 +7,5 @@ public class EmployeeDto {
     private String lastName;
     private String position;
     private String email;
-    private Department department;
+    private Integer departmentId;
 }
