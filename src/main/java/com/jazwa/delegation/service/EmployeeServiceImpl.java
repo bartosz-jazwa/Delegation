@@ -60,4 +60,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Optional<Employee> getByCard(Long cardNumber) {
         return employeeRepo.findByCardNumber(cardNumber);
     }
+
+    @Override
+    public Optional<Employee> getByLogin(String login){
+        return employeeRepo.findByLogin(login);
+    }
 }

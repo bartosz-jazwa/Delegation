@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jazwa.delegation.model.Employee;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,7 +16,9 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
+//@Entity
 public class Delegation {
+    //@Id
     private long number;
     private Employee employee;
     private String  project;

@@ -11,8 +11,9 @@ public class Department {
     private int id;
     @NotNull
     private String name;
+    @OneToOne(mappedBy = "department")
     private Employee head;
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "employee")
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "department")
     private Set<Employee> employees = new HashSet<>();
 
     public Department() {
