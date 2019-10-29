@@ -1,5 +1,8 @@
 package com.jazwa.delegation.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
@@ -11,9 +14,8 @@ public class Department {
     private int id;
     @NotNull
     private String name;
-    @OneToOne(mappedBy = "department")
-    private HeadOfDep head;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "department")
+    @JsonBackReference
     private Set<Employee> employees = new HashSet<>();
 
     public Department() {
@@ -23,20 +25,16 @@ public class Department {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Employee getHead() {
-        return head;
-    }
-
-    public void setHead(HeadOfDep head) {
-        this.head = head;
     }
 
     public Set<Employee> getEmployees() {

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,5 +44,27 @@ public class EmployeeController {
         } else {
             return ResponseEntity.of(employeeService.getById(e.getId()));
         }
+    }
+
+    @GetMapping("/{id}/head")
+    ResponseEntity<Employee> getHead(@PathVariable Integer id,
+                                     @AuthenticationPrincipal(expression = "employee")Employee e){
+
+        Optional<Employee> resultEmployee;
+        Optional<Employee> resultHead;
+        Employee emp;
+        if (e.getRole()== ROLE_ADMIN) {
+            resultEmployee = employeeService.getById(id);
+        } else {
+            resultEmployee = employeeService.getById(e.getId());
+        }
+        try {
+            resultHead = resultEmployee.orElseThrow(EntityNotFoundException::new).getDepartment().getEmployees().stream()
+                    .filter(employee -> employee.getRole().equals(ROLE_HEAD))
+                    .findFirst();
+        } catch (Exception ex){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.of(resultHead);
     }
 }

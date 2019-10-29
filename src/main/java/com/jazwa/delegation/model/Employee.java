@@ -1,5 +1,7 @@
 package com.jazwa.delegation.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.model.document.Delegation;
 
@@ -21,6 +23,7 @@ public class Employee {
     private Long cardNumber;
     private Role role;
     @ManyToOne
+    @JsonManagedReference
     private Department department;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "employee")
     private Set<Application> applications;
