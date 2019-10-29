@@ -24,6 +24,7 @@ public class Application {
     private LocalDate finishDate;
     private Float advanceAmount;
     private ApplicationStatus status;
+    @OneToMany(mappedBy = "application")
     private List<PlanItem> plan;
 
     public List<PlanItem> initPlan(LocalDate start, LocalDate finish){

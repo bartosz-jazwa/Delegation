@@ -21,8 +21,6 @@ public class Employee {
     private Long cardNumber;
     private Role role;
     @ManyToOne
-    @OneToOne
-    @MapsId
     private Department department;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "employee")
     private Set<Application> applications;

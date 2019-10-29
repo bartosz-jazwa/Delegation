@@ -3,6 +3,7 @@ package com.jazwa.delegation.service;
 import com.jazwa.delegation.dto.EmployeeDto;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 import java.util.Optional;
