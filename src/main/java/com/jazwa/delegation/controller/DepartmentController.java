@@ -2,6 +2,8 @@ package com.jazwa.delegation.controller;
 
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
+import com.jazwa.delegation.model.document.Application;
+import com.jazwa.delegation.model.document.ApplicationStatus;
 import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,10 @@ import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.jazwa.delegation.model.Role.ROLE_ADMIN;
+import static com.jazwa.delegation.model.Role.ROLE_HEAD;
 
 @RestController
 @RequestMapping("/departments")
@@ -60,6 +64,26 @@ public class DepartmentController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(employeeList);
+    }
+
+    @GetMapping("/{id}/pendingApplications")
+    ResponseEntity<List<Application>> getPendingApplications(@PathVariable Integer id,
+                                                             @AuthenticationPrincipal(expression = "employee")Employee e){
+        if (e.getRole()== ROLE_HEAD) {
+            Optional<Department> departmentOptional = departmentService.getById(id);
+            Department department = departmentOptional.orElseThrow(EntityNotFoundException::new);
+            List<Application> applicationList = department.getEmployees().stream()
+                    .flatMap(employee -> employee.getApplications().stream())
+                    .filter(application -> application.getStatus().equals(ApplicationStatus.PENDING))
+                    .collect(Collectors.toList());
+            if (applicationList.isEmpty()){
+                return ResponseEntity.noContent().build();
+            }else {
+                return ResponseEntity.ok(applicationList);
+            }
+        } else {
+            return ResponseEntity.noContent().build();
+        }
     }
 
 }
