@@ -27,6 +27,9 @@ public class Application {
     @OneToMany(mappedBy = "application")
     private List<PlanItem> plan;
 
+    public Application() {
+    }
+
     public List<PlanItem> initPlan(LocalDate start, LocalDate finish){
         List<PlanItem> planList = new ArrayList<>();
 

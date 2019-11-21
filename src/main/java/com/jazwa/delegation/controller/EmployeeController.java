@@ -3,13 +3,12 @@ package com.jazwa.delegation.controller;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
@@ -24,6 +23,8 @@ public class EmployeeController {
 
     @Autowired
     EmployeeService employeeService;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @GetMapping
     @Secured("ROLE_ADMIN")
@@ -66,5 +67,34 @@ public class EmployeeController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.of(resultHead);
+    }
+
+    @PostMapping
+    @Secured("ROLE_ADMIN")
+    ResponseEntity<Employee> addNewEmployee(@RequestBody Employee employee){
+        Employee newEmployee = employee;
+        try {
+            newEmployee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        }catch (NullPointerException e){
+            return ResponseEntity.unprocessableEntity().body(employee);
+        }
+        Optional<Employee> result = employeeService.addNew(newEmployee);
+        if (result.isPresent()) {
+            return ResponseEntity.ok(result.get());
+        } else {
+            return ResponseEntity.unprocessableEntity().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @Secured("ROLE_ADMIN")
+    ResponseEntity<Employee> deleteEmployee(@PathVariable Integer id){
+        Integer delId;
+        try{
+            delId = id;
+        }catch (NumberFormatException e){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.of(employeeService.deleteById(delId));
     }
 }
