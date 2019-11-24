@@ -44,6 +44,7 @@ public class DelegationApplication implements CommandLineRunner {
 
         Application application1 = new Application();
         Application application2 = new Application();
+
         Set<Application> applicationsAdam= new HashSet<>();
         applicationsAdam.add(application1);
         applicationsAdam.add(application2);
@@ -54,7 +55,12 @@ public class DelegationApplication implements CommandLineRunner {
         adam.setRole(Role.ROLE_ADMIN);
         adam.setDepartment(pss);
         adam.setApplications(applicationsAdam);
+
+
         employeeRepo.save(adam);
+
+        //applicationRepo.save(application1);
+        //applicationRepo.save(application2);
 
         Application application3 = new Application();
         applicationRepo.save(application3);

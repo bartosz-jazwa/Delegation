@@ -28,6 +28,16 @@ public class Application {
     private List<PlanItem> plan;
 
     public Application() {
+        this.applicationDate = LocalDate.now();
+        this.project = "jakis projekt";
+        this.country = Locale.CANADA;
+        this.city = "Krakow";
+        this.transport = "samolot";
+        this.startDate = LocalDate.now().plusDays(1);
+        this.finishDate = this.startDate.plusDays(2);
+        this.advanceAmount = 56.56f;
+        this.status = ApplicationStatus.PENDING;
+        this.plan = new ArrayList<>();
     }
 
     public List<PlanItem> initPlan(LocalDate start, LocalDate finish){
