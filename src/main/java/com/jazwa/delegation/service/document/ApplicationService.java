@@ -17,8 +17,12 @@ public interface ApplicationService {
     Optional<Application> forwardApplication(Long id);
 
     Set<Application> getByEmployee(Employee employee);
-    Set<Application> getByDepartment(Department department);
+    Set<Application> getByEmployeeAndStatus(Employee employee, ApplicationStatus status);
+    Set<Application> getByDepartment(Integer departmentId);
+    Set<Application> getByDepartmentAndStatus(Integer departmentId, ApplicationStatus status);
     Set<Application> getByCountry(Locale country);
+    Set<Application> getByCountryAndStatus(Locale country, ApplicationStatus status);
+    Set<Application> getByCountryAndEmployee(Locale country, Employee employee);
     Set<Application> getByStatus(ApplicationStatus status);
     Set<Application> getByApplicationDate(LocalDate date);
     Set<Application> getByStartDate(LocalDate date);

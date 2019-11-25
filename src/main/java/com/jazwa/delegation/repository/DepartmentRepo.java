@@ -9,5 +9,5 @@ import java.util.Set;
 
 @Repository
 public interface DepartmentRepo extends JpaRepository<Department,Integer> {
-    Optional<Department> findAllById(Integer id);
+    Optional<Department> findById(Integer id);
 }

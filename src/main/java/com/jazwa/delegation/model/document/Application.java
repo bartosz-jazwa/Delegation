@@ -56,4 +56,92 @@ public class Application {
     public void setStatus(ApplicationStatus status) {
         this.status = status;
     }
+
+    public long getNumber() {
+        return number;
+    }
+
+    public void setNumber(long number) {
+        this.number = number;
+    }
+
+    public LocalDate getApplicationDate() {
+        return applicationDate;
+    }
+
+    public void setApplicationDate(LocalDate applicationDate) {
+        this.applicationDate = applicationDate;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
+    }
+
+    public Locale getCountry() {
+        return country;
+    }
+
+    public void setCountry(Locale country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getTransport() {
+        return transport;
+    }
+
+    public void setTransport(String transport) {
+        this.transport = transport;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(LocalDate finishDate) {
+        this.finishDate = finishDate;
+    }
+
+    public Float getAdvanceAmount() {
+        return advanceAmount;
+    }
+
+    public void setAdvanceAmount(Float advanceAmount) {
+        this.advanceAmount = advanceAmount;
+    }
+
+    public List<PlanItem> getPlan() {
+        return plan;
+    }
+
+    public void setPlan(List<PlanItem> plan) {
+        this.plan = plan;
+    }
 }
