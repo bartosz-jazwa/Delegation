@@ -3,7 +3,7 @@ package com.jazwa.delegation.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
-
+/*
 @Configuration
 @EnableGlobalMethodSecurity(
         prePostEnabled = true,
@@ -12,4 +12,4 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 public class MethodSecurityConfig
         extends GlobalMethodSecurityConfiguration {
 
-}
+}*/

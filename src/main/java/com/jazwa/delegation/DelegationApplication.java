@@ -18,7 +18,7 @@ import java.util.Set;
 
 @SpringBootApplication
 public class DelegationApplication implements CommandLineRunner {
-
+/*
     @Autowired
     PasswordEncoder encoder;
 
@@ -30,12 +30,13 @@ public class DelegationApplication implements CommandLineRunner {
 
     @Autowired
     ApplicationRepo applicationRepo;
-
+*/
     public static void main(String[] args) {
         SpringApplication.run(DelegationApplication.class, args);
     }
     @Override
     public void run(String... args) throws Exception {
+        /*
         Department pss = new Department();
         pss.setId(1);
         pss.setName("pss");
@@ -80,7 +81,7 @@ public class DelegationApplication implements CommandLineRunner {
         Set<Employee> employees = new HashSet<>();
         employees.add(adam);
         employees.add(jan);
-
+*/
 
     }
 }
