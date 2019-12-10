@@ -1,11 +1,13 @@
 package com.jazwa.delegation.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -43,5 +45,11 @@ public class Department {
 
     public void setEmployees(Set<Employee> employees) {
         this.employees = employees;
+    }
+    @JsonIgnore
+    public Optional<Employee> getHead(){
+        return employees.stream()
+                .filter(employee -> employee.getRole().equals(Role.ROLE_HEAD))
+                .findFirst();
     }
 }

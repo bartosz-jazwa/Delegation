@@ -1,6 +1,8 @@
 package com.jazwa.delegation.controller;
 
+import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
+import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,8 @@ public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
     @Autowired
+    DepartmentService departmentService;
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @GetMapping
@@ -38,12 +42,23 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     ResponseEntity<Employee> getEmployee(@PathVariable Integer id,
-                                         @AuthenticationPrincipal(expression = "employee")Employee e){
+                                         @AuthenticationPrincipal(expression = "employee") Employee e){
 
-        if (e.getRole()== ROLE_ADMIN) {
-            return ResponseEntity.of(employeeService.getById(id));
-        } else {
-            return ResponseEntity.of(employeeService.getById(e.getId()));
+        Optional<Employee> resultOptional = employeeService.getById(id);
+        Optional<Department> departmentOptional = departmentService.getByEmployee(e);
+
+        switch (e.getRole()){
+            case ROLE_ADMIN:
+                return ResponseEntity.of(resultOptional);
+            case ROLE_HEAD:
+                if (resultOptional.isPresent()&&departmentOptional.isPresent()){
+                    if (resultOptional.get().getDepartment().getHead().equals(departmentOptional.get().getHead())){
+                        return ResponseEntity.of(resultOptional);
+                    }
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                }
+            default:
+                return ResponseEntity.of(employeeService.getById(e.getId()));
         }
     }
 

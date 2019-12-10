@@ -18,7 +18,7 @@ import java.util.Set;
 
 @SpringBootApplication
 public class DelegationApplication implements CommandLineRunner {
-/*
+
     @Autowired
     PasswordEncoder encoder;
 
@@ -30,58 +30,44 @@ public class DelegationApplication implements CommandLineRunner {
 
     @Autowired
     ApplicationRepo applicationRepo;
-*/
+
     public static void main(String[] args) {
         SpringApplication.run(DelegationApplication.class, args);
     }
     @Override
     public void run(String... args) throws Exception {
-        /*
+
         Department pss = new Department();
         pss.setId(1);
         pss.setName("pss");
-        //pss.setEmployees(employees);
         departmentRepo.save(pss);
 
-        Application application1 = new Application();
-        Application application2 = new Application();
-
-        Set<Application> applicationsAdam= new HashSet<>();
-        applicationsAdam.add(application1);
-        applicationsAdam.add(application2);
+        Department pks = new Department();
+        pks.setId(2);
+        pks.setName("pks");
+        departmentRepo.save(pks);
 
         Employee adam = new Employee();
         adam.setLogin("adam");
         adam.setPassword(encoder.encode("123"));
         adam.setRole(Role.ROLE_ADMIN);
         adam.setDepartment(pss);
-        adam.setApplications(applicationsAdam);
-
 
         employeeRepo.save(adam);
-
-        //applicationRepo.save(application1);
-        //applicationRepo.save(application2);
-
-        Application application3 = new Application();
-        applicationRepo.save(application3);
-        Application application4 = new Application();
-        Set<Application> applicationsJan= new HashSet<>();
-        applicationsJan.add(application3);
-        applicationsJan.add(application4);
 
         Employee jan = new Employee();
         jan.setLogin("jan");
         jan.setPassword(encoder.encode("qwe"));
         jan.setRole(Role.ROLE_HEAD);
         jan.setDepartment(pss);
-        adam.setApplications(applicationsJan);
         employeeRepo.save(jan);
 
-        Set<Employee> employees = new HashSet<>();
-        employees.add(adam);
-        employees.add(jan);
-*/
+        Employee bartek = new Employee();
+        bartek.setLogin("bartek");
+        bartek.setPassword(encoder.encode("jaz"));
+        bartek.setRole(Role.ROLE_EMPLOYEE);
+        bartek.setDepartment(pks);
+        employeeRepo.save(bartek);
 
     }
 }

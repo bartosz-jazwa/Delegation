@@ -1,6 +1,7 @@
 package com.jazwa.delegation.service;
 
 import com.jazwa.delegation.model.Department;
+import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.repository.DepartmentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,11 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public Optional<Department> getById(Integer id) {
         return departmentRepo.findById(id);
+    }
+
+    @Override
+    public Optional<Department> getByEmployee(Employee employee) {
+        return departmentRepo.findByEmployeesEquals(employee);
     }
 
     @Override
