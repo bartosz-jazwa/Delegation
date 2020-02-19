@@ -2,6 +2,7 @@ package com.jazwa.delegation.controller;
 
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
+import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.jazwa.delegation.model.Role.*;
@@ -42,17 +44,17 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     ResponseEntity<Employee> getEmployee(@PathVariable Integer id,
-                                         @AuthenticationPrincipal(expression = "employee") Employee e){
+                                         @AuthenticationPrincipal(expression = "employee") Employee e) {
 
         Optional<Employee> resultOptional = employeeService.getById(id);
         Optional<Department> departmentOptional = departmentService.getByEmployee(e);
 
-        switch (e.getRole()){
+        switch (e.getRole()) {
             case ROLE_ADMIN:
                 return ResponseEntity.of(resultOptional);
             case ROLE_HEAD:
-                if (resultOptional.isPresent()&&departmentOptional.isPresent()){
-                    if (resultOptional.get().getDepartment().getHead().equals(departmentOptional.get().getHead())){
+                if (resultOptional.isPresent() && departmentOptional.isPresent()) {
+                    if (resultOptional.get().getDepartment().getHead().equals(departmentOptional.get().getHead())) {
                         return ResponseEntity.of(resultOptional);
                     }
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -64,12 +66,11 @@ public class EmployeeController {
 
     @GetMapping("/{id}/head")
     ResponseEntity<Employee> getHead(@PathVariable Integer id,
-                                     @AuthenticationPrincipal(expression = "employee")Employee e){
+                                     @AuthenticationPrincipal(expression = "employee") Employee e) {
 
         Optional<Employee> resultEmployee;
         Optional<Employee> resultHead;
-        Employee emp;
-        if (e.getRole()== ROLE_ADMIN) {
+        if (e.getRole() == ROLE_ADMIN) {
             resultEmployee = employeeService.getById(id);
         } else {
             resultEmployee = employeeService.getById(e.getId());
@@ -78,19 +79,42 @@ public class EmployeeController {
             resultHead = resultEmployee.orElseThrow(EntityNotFoundException::new).getDepartment().getEmployees().stream()
                     .filter(employee -> employee.getRole().equals(ROLE_HEAD))
                     .findFirst();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.of(resultHead);
     }
 
+    @GetMapping("/{id}/applications")
+    ResponseEntity<Set<Application>> getApplications(@PathVariable Integer id,
+                                                     @AuthenticationPrincipal(expression = "employee") Employee e) {
+
+        Optional<Employee> employeeOptional;
+        if (e.getRole() == ROLE_ADMIN) {
+            employeeOptional = employeeService.getById(id);
+        } else {
+            employeeOptional = employeeService.getById(e.getId());
+        }
+
+        Set<Application> applicationSet;
+        try {
+            applicationSet = employeeOptional.orElseThrow(EntityNotFoundException::new).getApplications();
+        } catch (EntityNotFoundException ex){
+            return ResponseEntity.notFound().build();
+        }
+        if (applicationSet.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(applicationSet);
+    }
+
     @PostMapping
     @Secured("ROLE_ADMIN")
-    ResponseEntity<Employee> addNewEmployee(@RequestBody Employee employee){
+    ResponseEntity<Employee> addNewEmployee(@RequestBody Employee employee) {
         Employee newEmployee = employee;
         try {
             newEmployee.setPassword(passwordEncoder.encode(employee.getPassword()));
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             return ResponseEntity.unprocessableEntity().body(employee);
         }
         Optional<Employee> result = employeeService.addNew(newEmployee);
@@ -103,13 +127,14 @@ public class EmployeeController {
 
     @DeleteMapping("/{id}")
     @Secured("ROLE_ADMIN")
-    ResponseEntity<Employee> deleteEmployee(@PathVariable Integer id){
+    ResponseEntity<Employee> deleteEmployee(@PathVariable Integer id) {
         Integer delId;
-        try{
+        try {
             delId = id;
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.of(employeeService.deleteById(delId));
     }
+
 }
