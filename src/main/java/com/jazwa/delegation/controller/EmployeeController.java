@@ -4,6 +4,7 @@ import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.service.DepartmentService;
+import com.jazwa.delegation.service.EmployeeDetails;
 import com.jazwa.delegation.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,12 +45,12 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     ResponseEntity<Employee> getEmployee(@PathVariable Integer id,
-                                         @AuthenticationPrincipal(expression = "employee") Employee e) {
+                                         @AuthenticationPrincipal EmployeeDetails e) {
 
         Optional<Employee> resultOptional = employeeService.getById(id);
-        Optional<Department> departmentOptional = departmentService.getByEmployee(e);
+        Optional<Department> departmentOptional = departmentService.getByEmployee(e.getEmployee());
 
-        switch (e.getRole()) {
+        switch (e.getEmployee().getRole()) {
             case ROLE_ADMIN:
                 return ResponseEntity.of(resultOptional);
             case ROLE_HEAD:
@@ -60,7 +61,7 @@ public class EmployeeController {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
             default:
-                return ResponseEntity.of(employeeService.getById(e.getId()));
+                return ResponseEntity.of(employeeService.getById(e.getEmployee().getId()));
         }
     }
 
@@ -112,11 +113,13 @@ public class EmployeeController {
     @Secured("ROLE_ADMIN")
     ResponseEntity<Employee> addNewEmployee(@RequestBody Employee employee) {
         Employee newEmployee = employee;
-        try {
+
+        /*try {
             newEmployee.setPassword(passwordEncoder.encode(employee.getPassword()));
         } catch (NullPointerException e) {
             return ResponseEntity.unprocessableEntity().body(employee);
-        }
+        }*/
+
         Optional<Employee> result = employeeService.addNew(newEmployee);
         if (result.isPresent()) {
             return ResponseEntity.ok(result.get());

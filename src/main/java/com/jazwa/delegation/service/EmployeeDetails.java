@@ -39,7 +39,7 @@ public class EmployeeDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return employee.getLogin();
+        return employee.getUsername();
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.jazwa.delegation;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.Role;
-import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.repository.DepartmentRepo;
 import com.jazwa.delegation.repository.EmployeeRepo;
 import com.jazwa.delegation.repository.document.ApplicationRepo;
@@ -12,9 +11,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @SpringBootApplication
 public class DelegationApplication implements CommandLineRunner {
@@ -47,24 +43,18 @@ public class DelegationApplication implements CommandLineRunner {
         pks.setName("pks");
         departmentRepo.save(pks);
 
-        Employee adam = new Employee();
-        adam.setLogin("adam");
-        adam.setPassword(encoder.encode("123"));
+        Employee adam = new Employee("adam",encoder.encode("123"));
         adam.setRole(Role.ROLE_ADMIN);
         adam.setDepartment(pss);
 
         employeeRepo.save(adam);
 
-        Employee jan = new Employee();
-        jan.setLogin("jan");
-        jan.setPassword(encoder.encode("qwe"));
+        Employee jan = new Employee("jan",encoder.encode("qwe"));
         jan.setRole(Role.ROLE_HEAD);
         jan.setDepartment(pss);
         employeeRepo.save(jan);
 
-        Employee bartek = new Employee();
-        bartek.setLogin("bartek");
-        bartek.setPassword(encoder.encode("jaz"));
+        Employee bartek = new Employee("bartek",encoder.encode("jaz"));
         bartek.setRole(Role.ROLE_EMPLOYEE);
         bartek.setDepartment(pks);
         employeeRepo.save(bartek);

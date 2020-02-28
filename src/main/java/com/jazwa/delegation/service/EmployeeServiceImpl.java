@@ -63,6 +63,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Optional<Employee> getByLogin(String login){
-        return employeeRepo.findByLogin(login);
+        return employeeRepo.findByUsername(login);
     }
 }
