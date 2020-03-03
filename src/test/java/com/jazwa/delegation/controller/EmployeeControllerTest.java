@@ -71,7 +71,6 @@ public class EmployeeControllerTest {
 
         mvc.perform(get("/employees")
                 .contentType(MediaType.APPLICATION_JSON))
-                //.andExpect(jsonPath("$",hasSize(2)))
                 .andExpect(status().isNoContent());
     }
 
@@ -84,13 +83,23 @@ public class EmployeeControllerTest {
 
         mvc.perform(get("/employees")
                 .contentType(MediaType.APPLICATION_JSON))
-                //.andExpect(jsonPath("$",hasSize(2)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = {"EMPLOYEE"})
+    public void loggedRegularEmployee_whenGetAll_returnUnauthorized() throws Exception {
+        List<Employee> employees = new ArrayList<>();
+        when(employeeService.getAllEmployees()).thenReturn(employees);
+
+        mvc.perform(get("/employees")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     //@WithMockUser(roles = {"ADMIN"})
-    @WithUserDetails("admin")
+    //@WithUserDetails("admin")
     public void loggedAdmin_whenGetEmployee_returnOk() throws Exception {
 
         Employee bartek = new Employee();
@@ -98,14 +107,10 @@ public class EmployeeControllerTest {
         bartek.setPosition("programista");
 
         Employee admin = new Employee("admin","admin");
-        //admin.setUsername("admin");
-        //admin.setPassword("admin");
         admin.setRole(Role.ROLE_ADMIN);
         EmployeeDetails adminDetails = new EmployeeDetails(admin);
 
         Employee head = new Employee();
-        //head.setUsername("head");
-        //head.setPassword("head");
         head.setRole(Role.ROLE_HEAD);
 
         Set<Employee > employees = new HashSet<>();
@@ -118,8 +123,100 @@ public class EmployeeControllerTest {
 
         mvc.perform(get("/employees/1").with(user(adminDetails)))
                 .andExpect(jsonPath("$.position").value("programista"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+    }
+
+    @Test
+    public void loggedHead_whenGetEmployee_returnOkWhenEmployeeFromSameDepartment() throws Exception {
+
+        Employee bartek = new Employee("bartek","bartek");
+        bartek.setRole(Role.ROLE_EMPLOYEE);
+
+        Employee head = new Employee("head","head");
+        head.setRole(Role.ROLE_HEAD);
+        EmployeeDetails headDetails = new EmployeeDetails(head);
+
+        Set<Employee > employees = new HashSet<>();
+        employees.add(head);
+        employees.add(bartek);
+        Department so = new Department();
+        so.setEmployees(employees);
+        bartek.setDepartment(so);
+        head.setDepartment(so);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(bartek));
+        when(departmentService.getByEmployee(head)).thenReturn(Optional.of(so));
+
+        mvc.perform(get("/employees/1").with(user(headDetails)))
                 .andExpect(status().isOk());
-                //.andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+    }
+
+    @Test
+    public void loggedHead_whenGetEmployee_returnForbiddenWhenEmployeeFromDifferentDepartment() throws Exception {
+
+        Employee bartek = new Employee("bartek","bartek");
+        bartek.setId(1);
+        bartek.setRole(Role.ROLE_EMPLOYEE);
+
+        Employee barteksHead = new Employee("bHead","bHead");
+        barteksHead.setRole(Role.ROLE_HEAD);
+        barteksHead.setId(3);
+
+        Employee head = new Employee("head","head");
+        head.setId(2);
+        head.setRole(Role.ROLE_HEAD);
+        EmployeeDetails headDetails = new EmployeeDetails(head);
+
+        Set<Employee> soEmployees = new HashSet<>();
+        soEmployees.add(head);
+        Set<Employee> mechEmployees = new HashSet<>();
+        mechEmployees.add(bartek);
+        mechEmployees.add(barteksHead);
+
+        Department so = new Department();
+        so.setId(1);
+        so.setEmployees(soEmployees);
+        head.setDepartment(so);
+        Department mech = new Department();
+        mech.setId(2);
+        mech.setEmployees(mechEmployees);
+        bartek.setDepartment(mech);
+        barteksHead.setDepartment(mech);
+
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(bartek));
+        when(departmentService.getByEmployee(head)).thenReturn(Optional.of(so));
+
+        mvc.perform(get("/employees/1").with(user(headDetails)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void loggedEmployee_whenGetEmployee_returnOk() throws Exception {
+
+        Employee bartek = new Employee("bartek","bartek");
+        bartek.setPosition("programista");
+        bartek.setId(1);
+        bartek.setRole(Role.ROLE_EMPLOYEE);
+
+        EmployeeDetails bartekDetails = new EmployeeDetails(bartek);
+
+        Set<Employee> soEmployees = new HashSet<>();
+        soEmployees.add(bartek);
+
+        Department so = new Department();
+        so.setId(1);
+        so.setEmployees(soEmployees);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(bartek));
+       //when(departmentService.getByEmployee(bartek)).thenReturn(Optional.of(so));
+
+        mvc.perform(get("/employees/1").with(user(bartekDetails)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.position").value("programista"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+
     }
 
     @Test
