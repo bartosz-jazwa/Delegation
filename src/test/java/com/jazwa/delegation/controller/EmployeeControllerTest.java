@@ -1,9 +1,13 @@
 package com.jazwa.delegation.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jazwa.delegation.config.SpringSecurityTestConfig;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.Role;
+import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.repository.EmployeeRepo;
 import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.EmployeeDetails;
@@ -19,6 +23,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.*;
 
@@ -28,9 +33,10 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = SpringSecurityTestConfig.class)
+@SpringBootTest//(classes = SpringSecurityTestConfig.class)
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 public class EmployeeControllerTest {
@@ -103,18 +109,14 @@ public class EmployeeControllerTest {
     public void loggedAdmin_whenGetEmployee_returnOk() throws Exception {
 
         Employee bartek = new Employee();
-        bartek.setFirstName("Bartek");
+        bartek.setRole(Role.ROLE_EMPLOYEE);
         bartek.setPosition("programista");
 
         Employee admin = new Employee("admin","admin");
         admin.setRole(Role.ROLE_ADMIN);
         EmployeeDetails adminDetails = new EmployeeDetails(admin);
 
-        Employee head = new Employee();
-        head.setRole(Role.ROLE_HEAD);
-
-        Set<Employee > employees = new HashSet<>();
-        employees.add(head);
+        Set<Employee> employees = new HashSet<>();
         Department so = new Department();
         so.setEmployees(employees);
 
@@ -220,14 +222,94 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void getHead() {
+    public void loggedRegularEmployee_whenGetHead_returnOk() throws Exception{
+        Department so = new Department();
+
+        Employee bartek = new Employee("bartek","bartek");
+        bartek.setPosition("programista");
+        bartek.setId(1);
+        bartek.setRole(Role.ROLE_EMPLOYEE);
+        bartek.setDepartment(so);
+        EmployeeDetails bartekDetails = new EmployeeDetails(bartek);
+
+        Employee head = new Employee("head","head");
+        head.setId(2);
+        head.setRole(Role.ROLE_HEAD);
+        head.setDepartment(so);
+
+        Set<Employee> employees = new HashSet<>();
+        employees.add(bartek);
+        employees.add(head);
+        so.setEmployees(employees);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(bartek));
+
+        mvc.perform(get("/employees/1/head").with(user(bartekDetails)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("ROLE_HEAD"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
     }
 
     @Test
-    public void addNewEmployee() {
+    public void loggedRegularEmployee_whenGetHeadAndNoHeadInDepartment_returnNoContent() throws Exception{
+        Department so = new Department();
+
+        Employee bartek = new Employee("bartek","bartek");
+        bartek.setPosition("programista");
+        bartek.setId(1);
+        bartek.setRole(Role.ROLE_EMPLOYEE);
+        bartek.setDepartment(so);
+        EmployeeDetails bartekDetails = new EmployeeDetails(bartek);
+
+        Set<Employee> employees = new HashSet<>();
+        employees.add(bartek);
+        //employees.add(head);
+        so.setEmployees(employees);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(bartek));
+
+        mvc.perform(get("/employees/1/head").with(user(bartekDetails)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenAddNewEmployee_returnNewEmployee() throws Exception{
+        Department so = new Department();
+        so.setName("so");
+        Set<Application> applications = new HashSet<>();
+
+        Employee bartek = new Employee("bartek","bartek");
+        bartek.setFirstName("bartek");
+        bartek.setLastName("jazwa");
+        bartek.setCardNumber(12345L);
+        bartek.setEmail("j@wp.pl");
+        bartek.setPosition("programista");
+        bartek.setId(1);
+        bartek.setRole(Role.ROLE_EMPLOYEE);
+        bartek.setDepartment(so);
+        bartek.setApplications(applications);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(bartek);
+
+        when(employeeService.addNew(bartek)).thenReturn(Optional.of(bartek));
+
+        mvc.perform(post("/employees")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isCreated());
     }
 
     @Test
     public void deleteEmployee() {
+    }
+
+    @Test
+    public void getApplications() {
     }
 }

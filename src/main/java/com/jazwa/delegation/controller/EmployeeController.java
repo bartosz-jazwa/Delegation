@@ -8,6 +8,7 @@ import com.jazwa.delegation.service.EmployeeDetails;
 import com.jazwa.delegation.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -81,7 +82,7 @@ public class EmployeeController {
                     .filter(employee -> employee.getRole().equals(ROLE_HEAD))
                     .findFirst();
         } catch (Exception ex) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.of(resultHead);
     }
@@ -109,7 +110,7 @@ public class EmployeeController {
         return ResponseEntity.ok(applicationSet);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @Secured("ROLE_ADMIN")
     ResponseEntity<Employee> addNewEmployee(@RequestBody Employee employee) {
         Employee newEmployee = employee;
