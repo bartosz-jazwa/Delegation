@@ -116,13 +116,8 @@ public class EmployeeController {
     ResponseEntity<Employee> addNewEmployee(@RequestBody EmployeeAddNewDto employee) {
         Optional<Department> departmentOptional = departmentService.getById(employee.getDepartmentId());
         Employee newEmployee = new Employee(employee);
-        departmentOptional.ifPresent(department -> newEmployee.setDepartment(department));
-
-        /*try {
-            newEmployee.setPassword(passwordEncoder.encode(employee.getPassword()));
-        } catch (NullPointerException e) {
-            return ResponseEntity.unprocessableEntity().body(employee);
-        }*/
+        newEmployee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        departmentOptional.ifPresent(newEmployee::setDepartment);
 
         Optional<Employee> result = employeeService.addNew(newEmployee);
         if (result.isPresent()) {

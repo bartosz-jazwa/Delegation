@@ -54,7 +54,7 @@ public class DelegationApplication implements CommandLineRunner {
         jan.setDepartment(pss);
         employeeRepo.save(jan);
 
-        Employee bartek = new Employee("bartek",encoder.encode("jaz"));
+        Employee bartek = new Employee("vojtek",encoder.encode("jaz"));
         bartek.setRole(Role.ROLE_EMPLOYEE);
         bartek.setDepartment(pks);
         employeeRepo.save(bartek);

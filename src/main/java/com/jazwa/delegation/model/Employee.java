@@ -21,8 +21,10 @@ public class Employee{
     private String firstName;
     private String lastName;
     private String position;
+    @Column(unique = true,nullable = false)
     private String username;
     private String password;
+    @Column(unique = true,nullable = true)
     private String email;
     @Column(unique = true,nullable = true)
     private Long cardNumber;
@@ -48,7 +50,7 @@ public class Employee{
         this.username = employeeDto.getUsername();
         this.password = employeeDto.getPassword();
         this.email = employeeDto.getEmail();
-        this.cardNumber = 0L;
+        this.cardNumber = null;
         this.role = Role.valueOf(employeeDto.getRole());
         this.applications = new HashSet<Application>();
     }
@@ -135,7 +137,16 @@ public class Employee{
     public String getPassword() {
         return password;
     }
-/*  public Set<Delegation> getDelegations() {
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /*  public Set<Delegation> getDelegations() {
         return delegations;
     }
 
