@@ -1,7 +1,12 @@
 package com.jazwa.delegation.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jazwa.delegation.dto.EmployeeAddNewDto;
 import com.jazwa.delegation.model.document.Application;
+import com.jazwa.delegation.service.DepartmentService;
+import com.jazwa.delegation.service.DepartmentServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
@@ -34,6 +39,18 @@ public class Employee{
     public Employee(String username, String password){
         this.username = username;
         this.password = password;
+    }
+
+    public Employee(EmployeeAddNewDto employeeDto){
+        this.firstName = employeeDto.getFirstName();
+        this.lastName = employeeDto.getLastName();
+        this.position = employeeDto.getPosition();
+        this.username = employeeDto.getUsername();
+        this.password = employeeDto.getPassword();
+        this.email = employeeDto.getEmail();
+        this.cardNumber = 0L;
+        this.role = Role.valueOf(employeeDto.getRole());
+        this.applications = new HashSet<Application>();
     }
 
     //@OneToMany(cascade = CascadeType.ALL,mappedBy = "employee")

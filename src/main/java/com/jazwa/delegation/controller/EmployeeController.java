@@ -1,5 +1,6 @@
 package com.jazwa.delegation.controller;
 
+import com.jazwa.delegation.dto.EmployeeAddNewDto;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.document.Application;
@@ -110,10 +111,12 @@ public class EmployeeController {
         return ResponseEntity.ok(applicationSet);
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping
     @Secured("ROLE_ADMIN")
-    ResponseEntity<Employee> addNewEmployee(@RequestBody Employee employee) {
-        Employee newEmployee = employee;
+    ResponseEntity<Employee> addNewEmployee(@RequestBody EmployeeAddNewDto employee) {
+        Optional<Department> departmentOptional = departmentService.getById(employee.getDepartmentId());
+        Employee newEmployee = new Employee(employee);
+        departmentOptional.ifPresent(department -> newEmployee.setDepartment(department));
 
         /*try {
             newEmployee.setPassword(passwordEncoder.encode(employee.getPassword()));

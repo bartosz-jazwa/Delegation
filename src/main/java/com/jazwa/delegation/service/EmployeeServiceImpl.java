@@ -1,6 +1,5 @@
 package com.jazwa.delegation.service;
 
-import com.jazwa.delegation.dto.EmployeeDto;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.repository.EmployeeRepo;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
