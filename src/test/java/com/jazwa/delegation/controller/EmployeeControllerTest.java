@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jazwa.delegation.config.SpringSecurityTestConfig;
+import com.jazwa.delegation.dto.EmployeeAddNewDto;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.Role;
@@ -14,6 +15,7 @@ import com.jazwa.delegation.service.EmployeeDetails;
 import com.jazwa.delegation.service.EmployeeService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,10 +32,10 @@ import java.util.*;
 import static org.assertj.core.internal.bytebuddy.implementation.FixedValue.value;
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest//(classes = SpringSecurityTestConfig.class)
@@ -275,27 +277,16 @@ public class EmployeeControllerTest {
     @Test
     @WithMockUser(roles = {"ADMIN"})
     public void loggedAdmin_whenAddNewEmployee_returnNewEmployee() throws Exception{
-        Department so = new Department();
-        so.setName("so");
-        Set<Application> applications = new HashSet<>();
+        EmployeeAddNewDto newEmployeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek","123");
 
-        Employee bartek = new Employee("bartek","bartek");
-        bartek.setFirstName("bartek");
-        bartek.setLastName("jazwa");
-        bartek.setCardNumber(12345L);
-        bartek.setEmail("j@wp.pl");
-        bartek.setPosition("programista");
-        bartek.setId(1);
-        bartek.setRole(Role.ROLE_EMPLOYEE);
-        bartek.setDepartment(so);
-        bartek.setApplications(applications);
+        Employee newEmployee = new Employee(newEmployeeDto);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
         ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
-        String requestBody = objectWriter.writeValueAsString(bartek);
+        String requestBody = objectWriter.writeValueAsString(newEmployeeDto);
 
-        when(employeeService.addNew(bartek)).thenReturn(Optional.of(bartek));
+        when(employeeService.addNew(any(Employee.class))).thenReturn(Optional.of(newEmployee));
 
         mvc.perform(post("/employees")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -306,7 +297,57 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void deleteEmployee() {
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenAddNewEmployeeEmpty_returnUnprocessable() throws Exception{
+        EmployeeAddNewDto newEmployeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek","123");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newEmployeeDto);
+
+        when(employeeService.addNew(any(Employee.class))).thenReturn(Optional.empty());
+
+        mvc.perform(post("/employees")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isUnprocessableEntity());
+    }
+    //TODO when email validation ready, add tests
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenDeleteEmployee_returnOK() throws Exception{
+        EmployeeAddNewDto deletedEmployeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek","123");
+        Employee employeeToBeDeleted = new Employee(deletedEmployeeDto);
+        when(employeeService.deleteById(1)).thenReturn(Optional.of(employeeToBeDeleted));
+
+        mvc.perform(delete("/employees/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenDeleteEmployeeButNoIntAsPathVariable_returnBadRequest() throws Exception{
+        EmployeeAddNewDto deletedEmployeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek","123");
+        Employee employeeToBeDeleted = new Employee(deletedEmployeeDto);
+        when(employeeService.deleteById(1)).thenReturn(Optional.of(employeeToBeDeleted));
+
+        mvc.perform(delete("/employees/a"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenDeleteEmployeeReturnsEmpty_returnNotFound() throws Exception{
+        EmployeeAddNewDto deletedEmployeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek","123");
+        Employee employeeToBeDeleted = new Employee(deletedEmployeeDto);
+        when(employeeService.deleteById(1)).thenReturn(Optional.empty());
+
+        mvc.perform(delete("/employees/1"))
+                .andExpect(status().isNotFound());
     }
 
     @Test

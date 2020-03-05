@@ -47,12 +47,12 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     ResponseEntity<Employee> getEmployee(@PathVariable Integer id,
-                                         @AuthenticationPrincipal EmployeeDetails e) {
+                                         @AuthenticationPrincipal(expression = "employee") Employee e) {
 
         Optional<Employee> resultOptional = employeeService.getById(id);
-        Optional<Department> departmentOptional = departmentService.getByEmployee(e.getEmployee());
+        Optional<Department> departmentOptional = departmentService.getByEmployee(e);
 
-        switch (e.getEmployee().getRole()) {
+        switch (e.getRole()) {
             case ROLE_ADMIN:
                 return ResponseEntity.of(resultOptional);
             case ROLE_HEAD:
@@ -63,7 +63,7 @@ public class EmployeeController {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
             default:
-                return ResponseEntity.of(employeeService.getById(e.getEmployee().getId()));
+                return ResponseEntity.of(employeeService.getById(e.getId()));
         }
     }
 
@@ -111,6 +111,7 @@ public class EmployeeController {
         return ResponseEntity.ok(applicationSet);
     }
 
+    //TODO validate email
     @PostMapping
     @Secured("ROLE_ADMIN")
     ResponseEntity<Employee> addNewEmployee(@RequestBody EmployeeAddNewDto employee) {
@@ -121,7 +122,7 @@ public class EmployeeController {
 
         Optional<Employee> result = employeeService.addNew(newEmployee);
         if (result.isPresent()) {
-            return ResponseEntity.ok(result.get());
+            return ResponseEntity.status(HttpStatus.CREATED).body(result.get());
         } else {
             return ResponseEntity.unprocessableEntity().build();
         }
@@ -139,4 +140,6 @@ public class EmployeeController {
         return ResponseEntity.of(employeeService.deleteById(delId));
     }
 
+    //TODO add promoteEmployee method to change role from employee to head
+    //TODO add transferEmployee method to move employee to different department
 }
