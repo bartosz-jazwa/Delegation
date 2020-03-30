@@ -315,6 +315,86 @@ public class EmployeeControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isUnprocessableEntity());
     }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenAddNewEmployeeWithInvalidEmail_returnUnprocessable() throws Exception{
+        EmployeeAddNewDto newEmployeeDto = new EmployeeAddNewDto("b","j","p","xxx",1,"ROLE_EMPLOYEE","bartek","123");
+        Employee newEmployee = new Employee(newEmployeeDto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newEmployeeDto);
+
+        when(employeeService.addNew(any(Employee.class))).thenReturn(Optional.of(newEmployee));
+
+        mvc.perform(post("/employees")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenAddNewEmployeeWithNameBlank_returnUnprocessable() throws Exception{
+        EmployeeAddNewDto newEmployeeDto = new EmployeeAddNewDto("","j","p","j@rp.pl",1,"ROLE_EMPLOYEE","bartek","123");
+        Employee newEmployee = new Employee(newEmployeeDto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newEmployeeDto);
+
+        when(employeeService.addNew(any(Employee.class))).thenReturn(Optional.of(newEmployee));
+
+        mvc.perform(post("/employees")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenAddNewEmployeeWithDepIdNull_returnUnprocessable() throws Exception{
+        EmployeeAddNewDto newEmployeeDto = new EmployeeAddNewDto("","j","p","j@rp.pl",null,"ROLE_EMPLOYEE","bartek","123");
+        Employee newEmployee = new Employee(newEmployeeDto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newEmployeeDto);
+
+        when(employeeService.addNew(any(Employee.class))).thenReturn(Optional.of(newEmployee));
+
+        mvc.perform(post("/employees")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    public void loggedAdmin_whenAddNewEmployeeWithDepIdZero_returnUnprocessable() throws Exception{
+        EmployeeAddNewDto newEmployeeDto = new EmployeeAddNewDto("","j","p","j@rp.pl",0,"ROLE_EMPLOYEE","bartek","123");
+        Employee newEmployee = new Employee(newEmployeeDto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newEmployeeDto);
+
+        when(employeeService.addNew(any(Employee.class))).thenReturn(Optional.of(newEmployee));
+
+        mvc.perform(post("/employees")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isBadRequest());
+    }
     //TODO when email validation ready, add tests
 
     @Test

@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -114,7 +115,7 @@ public class EmployeeController {
     //TODO validate email
     @PostMapping
     @Secured("ROLE_ADMIN")
-    ResponseEntity<Employee> addNewEmployee(@RequestBody EmployeeAddNewDto employee) {
+    ResponseEntity<Employee> addNewEmployee(@RequestBody @Valid EmployeeAddNewDto employee) {
         Optional<Department> departmentOptional = departmentService.getById(employee.getDepartmentId());
         Employee newEmployee = new Employee(employee);
         newEmployee.setPassword(passwordEncoder.encode(employee.getPassword()));

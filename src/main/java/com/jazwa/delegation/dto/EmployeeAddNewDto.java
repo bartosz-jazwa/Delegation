@@ -2,14 +2,25 @@ package com.jazwa.delegation.dto;
 
 import com.jazwa.delegation.model.Department;
 
+import javax.validation.constraints.*;
+
 public class EmployeeAddNewDto {
+    @NotBlank
     private String firstName;
+    @NotBlank
     private String lastName;
+    @NotBlank
     private String position;
+    @Email(message = "Invalid email format")
     private String email;
+    @Min(value = 1)
     private Integer departmentId;
+    @NotBlank
     private String role;
+    @NotBlank
     private String username;
+    @NotBlank
+    @Size(min = 2,max = 32)
     private String password;
 
     public EmployeeAddNewDto() {
