@@ -1,6 +1,7 @@
 package com.jazwa.delegation.controller;
 
 import com.jazwa.delegation.dto.EmployeeAddNewDto;
+import com.jazwa.delegation.dto.EmployeeChangePasswordDto;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.document.Application;
@@ -139,6 +140,31 @@ public class EmployeeController {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.of(employeeService.deleteById(delId));
+    }
+
+    @PutMapping("/{id}")
+    ResponseEntity<Employee> changePassword(@PathVariable Integer id,
+                                            @AuthenticationPrincipal(expression = "employee") Employee e,
+                                            @RequestBody @Valid EmployeeChangePasswordDto passwordDto) {
+
+        int loggedUserId = e.getId();
+        Optional<Employee> resultOptional = employeeService.getById(loggedUserId);
+        Employee employeeToUpdate = resultOptional.orElseThrow(EntityNotFoundException::new);
+        boolean pss = passwordEncoder.encode(passwordDto.getOldPassword()).equals(employeeToUpdate.getPassword());
+        if (loggedUserId == passwordDto.getId()){
+            if (passwordEncoder.matches(passwordDto.getOldPassword(),employeeToUpdate.getPassword())){
+                if (passwordDto.getNewPassword().equals(passwordDto.getRepeatPassword())){
+                    employeeToUpdate.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
+                    return ResponseEntity.of(employeeService.update(employeeToUpdate));
+                }else {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).build();
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     //TODO add promoteEmployee method to change role from employee to head

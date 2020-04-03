@@ -15,4 +15,5 @@ public interface EmployeeService {
     Optional<Employee> deleteById(Integer id);
     Optional<Employee> getByCard(Long cardNumber);
     Optional<Employee> getByLogin(String login);
+    Optional<Employee> update(Employee employee);
 }

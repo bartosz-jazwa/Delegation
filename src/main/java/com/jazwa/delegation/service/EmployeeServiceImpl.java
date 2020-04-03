@@ -63,4 +63,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Optional<Employee> getByLogin(String login){
         return employeeRepo.findByUsername(login);
     }
+
+    @Override
+    public Optional<Employee> update(Employee employee) {
+        Optional<Employee> result;
+        try {
+            result = Optional.ofNullable(employeeRepo.save(employee));
+        } catch (DataIntegrityViolationException e) {
+            return Optional.empty();
+        }
+        return result;
+    }
 }
