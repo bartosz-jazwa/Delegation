@@ -147,11 +147,9 @@ public class EmployeeController {
                                             @AuthenticationPrincipal(expression = "employee") Employee e,
                                             @RequestBody @Valid EmployeeChangePasswordDto passwordDto) {
 
-        int loggedUserId = e.getId();
-        Optional<Employee> resultOptional = employeeService.getById(loggedUserId);
+        Optional<Employee> resultOptional = employeeService.getById(id);
         Employee employeeToUpdate = resultOptional.orElseThrow(EntityNotFoundException::new);
-        boolean pss = passwordEncoder.encode(passwordDto.getOldPassword()).equals(employeeToUpdate.getPassword());
-        if (loggedUserId == passwordDto.getId()){
+        if (e.getId() == employeeToUpdate.getId()){
             if (passwordEncoder.matches(passwordDto.getOldPassword(),employeeToUpdate.getPassword())){
                 if (passwordDto.getNewPassword().equals(passwordDto.getRepeatPassword())){
                     employeeToUpdate.setPassword(passwordEncoder.encode(passwordDto.getNewPassword()));
@@ -169,4 +167,5 @@ public class EmployeeController {
 
     //TODO add promoteEmployee method to change role from employee to head
     //TODO add transferEmployee method to move employee to different department
+    //TODO add reset password
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jazwa.delegation.config.SpringSecurityTestConfig;
 import com.jazwa.delegation.dto.EmployeeAddNewDto;
+import com.jazwa.delegation.dto.EmployeeChangePasswordDto;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.Role;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,8 +31,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.*;
 
-import static org.assertj.core.internal.bytebuddy.implementation.FixedValue.value;
-import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -45,6 +45,8 @@ public class EmployeeControllerTest {
 
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    PasswordEncoder passwordEncoder;
     @MockBean
     private EmployeeService employeeService;
     @MockBean
@@ -431,6 +433,146 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void getApplications() {
+    public void whenLoggedUserTriesChangePasswordForDifferentUser_returnForbidden() throws Exception{
+        EmployeeAddNewDto employeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek",passwordEncoder.encode("123"));
+        Employee employee = new Employee(employeeDto);
+        employee.setId(1);
+
+        EmployeeChangePasswordDto newPassword = new EmployeeChangePasswordDto();
+        newPassword.setOldPassword("123");
+        newPassword.setNewPassword("456");
+        newPassword.setRepeatPassword("456");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newPassword);
+
+        EmployeeAddNewDto anotherEmployeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek",passwordEncoder.encode("123"));
+        Employee anotherEmployee = new Employee(anotherEmployeeDto);
+        anotherEmployee.setId(2);
+        EmployeeDetails employeeDetails = new EmployeeDetails(anotherEmployee);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(employee));
+        when(employeeService.update(any(Employee.class))).thenReturn(Optional.of(employee));
+
+        mvc.perform(put("/employees/1").with(user(employeeDetails))
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
+    public void whenLoggedUserTriesChangePasswordWithWrongOldPassword_returnConflict() throws Exception{
+        EmployeeAddNewDto employeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek",passwordEncoder.encode("123"));
+        Employee employee = new Employee(employeeDto);
+        employee.setId(1);
+
+        EmployeeChangePasswordDto newPassword = new EmployeeChangePasswordDto();
+        newPassword.setOldPassword("wrong");
+        newPassword.setNewPassword("456");
+        newPassword.setRepeatPassword("456");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newPassword);
+
+        EmployeeDetails employeeDetails = new EmployeeDetails(employee);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(employee));
+        when(employeeService.update(any(Employee.class))).thenReturn(Optional.of(employee));
+
+        mvc.perform(put("/employees/1").with(user(employeeDetails))
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void whenLoggedUserTriesChangePasswordWithDifferentNewPasswords_returnConflict() throws Exception{
+        EmployeeAddNewDto employeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek",passwordEncoder.encode("123"));
+        Employee employee = new Employee(employeeDto);
+        employee.setId(1);
+
+        EmployeeChangePasswordDto newPassword = new EmployeeChangePasswordDto();
+        newPassword.setOldPassword("123");
+        newPassword.setNewPassword("new");
+        newPassword.setRepeatPassword("differentNew");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newPassword);
+
+        EmployeeDetails employeeDetails = new EmployeeDetails(employee);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(employee));
+        when(employeeService.update(any(Employee.class))).thenReturn(Optional.of(employee));
+
+        mvc.perform(put("/employees/1").with(user(employeeDetails))
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void whenLoggedUserTriesChangePasswordWithNewPasswordTooShort_returnConflict() throws Exception{
+        EmployeeAddNewDto employeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek",passwordEncoder.encode("123"));
+        Employee employee = new Employee(employeeDto);
+        employee.setId(1);
+
+        EmployeeChangePasswordDto newPassword = new EmployeeChangePasswordDto();
+        newPassword.setOldPassword("wrong");
+        newPassword.setNewPassword("1");
+        newPassword.setRepeatPassword("1");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newPassword);
+
+        EmployeeDetails employeeDetails = new EmployeeDetails(employee);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(employee));
+        when(employeeService.update(any(Employee.class))).thenReturn(Optional.of(employee));
+
+        mvc.perform(put("/employees/1").with(user(employeeDetails))
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void whenLoggedUserTriesChangePassword_returnOk() throws Exception{
+        EmployeeAddNewDto employeeDto = new EmployeeAddNewDto("b","j","p","j@r.pl",1,"ROLE_EMPLOYEE","bartek",passwordEncoder.encode("123"));
+        Employee employee = new Employee(employeeDto);
+        employee.setId(1);
+
+        EmployeeChangePasswordDto newPassword = new EmployeeChangePasswordDto();
+        newPassword.setOldPassword("123");
+        newPassword.setNewPassword("newPassword");
+        newPassword.setRepeatPassword("newPassword");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE,false);
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+        String requestBody = objectWriter.writeValueAsString(newPassword);
+
+        EmployeeDetails employeeDetails = new EmployeeDetails(employee);
+
+        when(employeeService.getById(1)).thenReturn(Optional.of(employee));
+        when(employeeService.update(any(Employee.class))).thenReturn(Optional.of(employee));
+
+        mvc.perform(put("/employees/1").with(user(employeeDetails))
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(requestBody))
+                .andExpect(status().isOk());
     }
 }

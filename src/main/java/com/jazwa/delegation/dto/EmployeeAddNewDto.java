@@ -20,7 +20,7 @@ public class EmployeeAddNewDto {
     @NotBlank
     private String username;
     @NotBlank
-    @Size(min = 2,max = 32)
+    @Size(min = 3,max = 32)
     private String password;
 
     public EmployeeAddNewDto() {

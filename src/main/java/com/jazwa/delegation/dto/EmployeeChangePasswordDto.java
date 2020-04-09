@@ -1,18 +1,9 @@
 package com.jazwa.delegation.dto;
 
 public class EmployeeChangePasswordDto {
-    private int id;
     private String oldPassword;
     private String newPassword;
     private String repeatPassword;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getOldPassword() {
         return oldPassword;
