@@ -1,5 +1,6 @@
 package com.jazwa.delegation.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jazwa.delegation.dto.EmployeeAddNewDto;
@@ -34,6 +35,7 @@ public class Employee{
     @JsonManagedReference
     private Department department;
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "employee")
+    @JsonBackReference
     private Set<Application> applications;
 
     public Employee(){
@@ -154,4 +156,21 @@ public class Employee{
     public void setDelegations(Set<Delegation> delegations) {
         this.delegations = delegations;
     }*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Employee employee = (Employee) o;
+        return id == employee.id &&
+                username.equals(employee.username) &&
+                email.equals(employee.email) &&
+                role == employee.role &&
+                department.getId()==employee.department.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, email, role, department);
+    }
 }

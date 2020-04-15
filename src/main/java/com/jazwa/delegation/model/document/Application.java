@@ -1,5 +1,6 @@
 package com.jazwa.delegation.model.document;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jazwa.delegation.model.Employee;
 
 import javax.persistence.*;
@@ -15,6 +16,7 @@ public class Application {
     private long number;
     private LocalDate applicationDate;
     @ManyToOne
+    @JsonManagedReference
     private Employee employee;
     private String project;
     private Locale country;

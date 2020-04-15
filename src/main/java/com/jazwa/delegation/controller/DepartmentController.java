@@ -7,6 +7,7 @@ import com.jazwa.delegation.model.document.ApplicationStatus;
 import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,9 +35,9 @@ public class DepartmentController {
 
     @Secured("ROLE_ADMIN")
     @GetMapping
-    ResponseEntity<List<Department>> getAll(){
+    ResponseEntity<List<Department>> getAll() {
         List<Department> resultSet = departmentService.getAllDepartments();
-        if (resultSet.isEmpty()){
+        if (resultSet.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(departmentService.getAllDepartments());
@@ -44,45 +45,53 @@ public class DepartmentController {
 
     @GetMapping("/{id}")
     ResponseEntity<Department> getOne(@PathVariable Integer id,
-                                      @AuthenticationPrincipal(expression = "employee")Employee e){
+                                      @AuthenticationPrincipal(expression = "employee") Employee e) {
 
-        if (e.getRole()== ROLE_ADMIN) {
+        if (e.getRole() == ROLE_ADMIN) {
             return ResponseEntity.of(departmentService.getById(id));
         } else {
             int departmentId = e.getDepartment().getId();
             return ResponseEntity.of(departmentService.getById(departmentId));
         }
     }
+
     @GetMapping("/{id}/employees")
+    @Secured("ROLE_HEAD")
     ResponseEntity<List<Employee>> getEmployees(@PathVariable Integer id,
-                                                @AuthenticationPrincipal(expression = "employee")Employee e) {
+                                                @AuthenticationPrincipal(expression = "employee") Employee e) {
 
         Optional<Department> departmentOptional = departmentService.getById(id);
         Department department = departmentOptional.orElseThrow(EntityNotFoundException::new);
-        List<Employee> employeeList = employeeService.getByDepartment(department);
-        if (employeeList.isEmpty()){
-            return ResponseEntity.noContent().build();
+        if (e.getDepartment().equals(department)) {
+            List<Employee> employeeList = employeeService.getByDepartment(department);
+            if (employeeList.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(employeeList);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(employeeList);
     }
 
     @GetMapping("/{id}/pendingApplications")
+    @Secured("ROLE_HEAD")
     ResponseEntity<List<Application>> getPendingApplications(@PathVariable Integer id,
-                                                             @AuthenticationPrincipal(expression = "employee")Employee e){
-        if (e.getRole()== ROLE_HEAD) {
-            Optional<Department> departmentOptional = departmentService.getById(id);
-            Department department = departmentOptional.orElseThrow(EntityNotFoundException::new);
+                                                             @AuthenticationPrincipal(expression = "employee") Employee e) {
+
+        Optional<Department> departmentOptional = departmentService.getById(id);
+        Department department = departmentOptional.orElseThrow(EntityNotFoundException::new);
+        if (e.getDepartment().equals(department)) {
             List<Application> applicationList = department.getEmployees().stream()
                     .flatMap(employee -> employee.getApplications().stream())
                     .filter(application -> application.getStatus().equals(ApplicationStatus.PENDING))
                     .collect(Collectors.toList());
-            if (applicationList.isEmpty()){
+            if (applicationList.isEmpty()) {
                 return ResponseEntity.noContent().build();
-            }else {
+            } else {
                 return ResponseEntity.ok(applicationList);
             }
         } else {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
