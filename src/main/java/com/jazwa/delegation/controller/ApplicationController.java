@@ -56,7 +56,7 @@ public class ApplicationController {
                 break;
 
             default:
-                employeeOptional = employeeService.getById(e.getId());
+                    employeeOptional = employeeService.getById(e.getId());
         }
 
         Employee resultEmployee;

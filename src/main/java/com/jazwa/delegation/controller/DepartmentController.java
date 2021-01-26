@@ -62,7 +62,7 @@ public class DepartmentController {
 
         Optional<Department> departmentOptional = departmentService.getById(id);
         Department department = departmentOptional.orElseThrow(EntityNotFoundException::new);
-        if (e.getDepartment().equals(department)) {
+        if (e.getDepartment().getId()==department.getId()) {
             List<Employee> employeeList = employeeService.getByDepartment(department);
             if (employeeList.isEmpty()) {
                 return ResponseEntity.noContent().build();
@@ -80,7 +80,8 @@ public class DepartmentController {
 
         Optional<Department> departmentOptional = departmentService.getById(id);
         Department department = departmentOptional.orElseThrow(EntityNotFoundException::new);
-        if (e.getDepartment().equals(department)) {
+
+        if (e.getDepartment().getId()==department.getId()) {
             List<Application> applicationList = department.getEmployees().stream()
                     .flatMap(employee -> employee.getApplications().stream())
                     .filter(application -> application.getStatus().equals(ApplicationStatus.PENDING))
