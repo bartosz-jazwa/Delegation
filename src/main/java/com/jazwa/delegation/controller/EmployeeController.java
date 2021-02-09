@@ -126,7 +126,8 @@ public class EmployeeController {
         if (result.isPresent()) {
             return ResponseEntity.status(HttpStatus.CREATED).body(result.get());
         } else {
-            return ResponseEntity.unprocessableEntity().build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            //return ResponseEntity.unprocessableEntity().build();
         }
     }
 

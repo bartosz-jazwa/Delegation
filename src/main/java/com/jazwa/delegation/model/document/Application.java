@@ -1,6 +1,8 @@
 package com.jazwa.delegation.model.document;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.jazwa.delegation.dto.ApplicationAddNewDto;
 import com.jazwa.delegation.model.Employee;
 
 import javax.persistence.*;
@@ -27,6 +29,7 @@ public class Application {
     private Float advanceAmount;
     private ApplicationStatus status;
     @OneToMany(mappedBy = "application")
+    @JsonManagedReference
     private List<PlanItem> plan;
 
     public Application() {
@@ -42,12 +45,27 @@ public class Application {
         this.plan = new ArrayList<>();
     }
 
+    public Application(ApplicationAddNewDto addNewDto){
+        this.applicationDate = LocalDate.now();
+        this.project = addNewDto.getProject();
+        this.country = addNewDto.getCountry();
+        this.city = addNewDto.getCity();
+        this.transport = addNewDto.getTransport();
+        this.startDate = addNewDto.getStartDate();
+        this.finishDate = addNewDto.getFinishDate();
+        this.advanceAmount = addNewDto.getAdvanceAmount();
+        this.status = ApplicationStatus.PENDING;
+        this.plan = initPlan(this.startDate,this.finishDate);
+    }
+
     public List<PlanItem> initPlan(LocalDate start, LocalDate finish){
         List<PlanItem> planList = new ArrayList<>();
 
-        for (LocalDate i = start; i.isBefore(finish); i.plusDays(1)) {
-            planList.add(new PlanItem(i,""));
+        LocalDate startDate = start;
+        for (; startDate.isBefore(finish); startDate = startDate.plusDays(1)) {
+            planList.add(new PlanItem(start,""));
         }
+
         return planList;
     }
 
