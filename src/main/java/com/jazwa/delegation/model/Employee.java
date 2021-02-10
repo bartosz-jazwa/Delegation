@@ -18,7 +18,7 @@ import java.util.*;
 @Entity
 public class Employee{
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private int id;
     private String firstName;
     private String lastName;

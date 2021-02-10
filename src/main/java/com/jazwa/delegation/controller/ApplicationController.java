@@ -4,18 +4,24 @@ import com.jazwa.delegation.dto.ApplicationAddNewDto;
 import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.document.Application;
+import com.jazwa.delegation.model.document.ApplicationStatus;
+import com.jazwa.delegation.model.document.PlanItem;
 import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.EmployeeService;
 import com.jazwa.delegation.service.document.ApplicationService;
+import com.jazwa.delegation.service.document.PlanItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,7 +35,8 @@ public class ApplicationController {
     EmployeeService employeeService;
     @Autowired
     DepartmentService departmentService;
-
+    @Autowired
+    PlanItemService planItemService;
     @Autowired
     PasswordEncoder passwordEncoder;
 
@@ -68,6 +75,12 @@ public class ApplicationController {
         return ResponseEntity.ok(applications);
     }
 
+    @GetMapping("/{id}")
+    ResponseEntity<Application> getOne(@PathVariable Long id){
+
+        return ResponseEntity.of(applicationService.getById(id));
+    }
+
     @PostMapping
     //@Secured("ROLE_EMPLOYEE")
     ResponseEntity<Application> apply(@RequestBody ApplicationAddNewDto applicationDto,
@@ -78,7 +91,36 @@ public class ApplicationController {
         return ResponseEntity.of(applicationService.sendApplication(application));
     }
 
-    //TODO add approve function (approved application becomes delegation)
-    //TODO add deny(reject) function
+    // TODO approved application becomes delegation
+
+    @PutMapping("/{id}")
+    @Secured("ROLE_HEAD")
+    ResponseEntity<Application> updateStatus(@PathVariable Long id,
+                                            @RequestParam(required = true) ApplicationStatus status,
+                                            @AuthenticationPrincipal(expression = "employee") Employee head){
+        Optional<Application> applicationOptional = applicationService.getById(id);
+        Employee applyingEmployee;
+        Application application;
+        if (applicationOptional.isPresent()){
+            application = applicationOptional.get();
+            applyingEmployee = application.getEmployee();
+
+        }else {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (applyingEmployee.getDepartment().getId() == head.getDepartment().getId()){
+
+            application.setStatus(status);
+
+            return ResponseEntity.of(applicationService.sendApplication(application));
+        }else{
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+
+    //TODO add forward method, head of department sends application to his head
+    //TODO add cancel method (employee can cancel his own application)
     //TODO add comments (date, who is commenting)
 }

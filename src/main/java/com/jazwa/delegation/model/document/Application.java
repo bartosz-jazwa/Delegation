@@ -6,15 +6,17 @@ import com.jazwa.delegation.dto.ApplicationAddNewDto;
 import com.jazwa.delegation.model.Employee;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 @Entity
+@Transactional
 public class Application {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long number;
     private LocalDate applicationDate;
     @ManyToOne
@@ -28,21 +30,12 @@ public class Application {
     private LocalDate finishDate;
     private Float advanceAmount;
     private ApplicationStatus status;
-    @OneToMany(mappedBy = "application")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "application")
     @JsonManagedReference
     private List<PlanItem> plan;
 
     public Application() {
-        this.applicationDate = LocalDate.now();
-        this.project = "jakis projekt";
-        this.country = Locale.CANADA;
-        this.city = "Krakow";
-        this.transport = "samolot";
-        this.startDate = LocalDate.now().plusDays(1);
-        this.finishDate = this.startDate.plusDays(2);
-        this.advanceAmount = 56.56f;
-        this.status = ApplicationStatus.PENDING;
-        this.plan = new ArrayList<>();
+
     }
 
     public Application(ApplicationAddNewDto addNewDto){
@@ -63,7 +56,8 @@ public class Application {
 
         LocalDate startDate = start;
         for (; startDate.isBefore(finish); startDate = startDate.plusDays(1)) {
-            planList.add(new PlanItem(start,""));
+            planList.add(new PlanItem(startDate,startDate.getDayOfWeek().toString(), this));
+
         }
 
         return planList;

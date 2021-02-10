@@ -8,6 +8,7 @@ import com.jazwa.delegation.repository.DepartmentRepo;
 import com.jazwa.delegation.repository.document.ApplicationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -40,6 +41,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Optional<Application> forwardApplication(Long id) {
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<Application> getById(Long id) {
+        return applicationRepo.findById(id);
     }
 
     @Override

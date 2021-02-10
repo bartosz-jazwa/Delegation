@@ -15,6 +15,7 @@ public interface ApplicationService {
     Optional<Application> approveApplication(Long id);
     Optional<Application> rejectApplication(Long id);
     Optional<Application> forwardApplication(Long id);
+    Optional<Application> getById(Long id);
 
     Set<Application> getByEmployee(Employee employee);
     Set<Application> getByEmployeeAndStatus(Employee employee, ApplicationStatus status);
