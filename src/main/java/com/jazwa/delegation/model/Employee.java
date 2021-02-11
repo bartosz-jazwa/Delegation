@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jazwa.delegation.dto.EmployeeAddNewDto;
 import com.jazwa.delegation.model.document.Application;
+import com.jazwa.delegation.model.document.Delegation;
 import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.DepartmentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ public class Employee{
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "employee")
     @JsonBackReference
     private Set<Application> applications;
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "employee")
+    @JsonBackReference
+    private Set<Delegation> delegations;
 
     public Employee(){
     }

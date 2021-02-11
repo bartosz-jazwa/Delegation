@@ -8,7 +8,7 @@ import java.util.Locale;
 
 public class ApplicationAddNewDto {
     private String project;
-    private Locale country;
+    private String country;
     private String city;
     private String transport;
     private LocalDate startDate;
@@ -23,11 +23,11 @@ public class ApplicationAddNewDto {
         this.project = project;
     }
 
-    public Locale getCountry() {
+    public String getCountry() {
         return country;
     }
 
-    public void setCountry(Locale country) {
+    public void setCountry(String country) {
         this.country = country;
     }
 

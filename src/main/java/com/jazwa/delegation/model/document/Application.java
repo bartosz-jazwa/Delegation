@@ -11,6 +11,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @Transactional
@@ -41,7 +44,7 @@ public class Application {
     public Application(ApplicationAddNewDto addNewDto){
         this.applicationDate = LocalDate.now();
         this.project = addNewDto.getProject();
-        this.country = addNewDto.getCountry();
+        this.country = getCountryFromString(addNewDto.getCountry());
         this.city = addNewDto.getCity();
         this.transport = addNewDto.getTransport();
         this.startDate = addNewDto.getStartDate();
@@ -61,6 +64,16 @@ public class Application {
         }
 
         return planList;
+    }
+
+    public Locale getCountryFromString(String country){
+
+        Optional<Locale> countryOptional = Stream.of(Locale.getISOCountries())
+                .map(s -> new Locale("",s))
+                .filter(locale -> locale.getDisplayCountry().equalsIgnoreCase(country))
+                .findFirst();
+
+        return countryOptional.get();
     }
 
     public ApplicationStatus getStatus() {

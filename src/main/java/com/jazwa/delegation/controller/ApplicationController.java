@@ -5,11 +5,14 @@ import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.model.document.ApplicationStatus;
+import com.jazwa.delegation.model.document.Delegation;
 import com.jazwa.delegation.model.document.PlanItem;
 import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.EmployeeService;
 import com.jazwa.delegation.service.document.ApplicationService;
+import com.jazwa.delegation.service.document.DelegationService;
 import com.jazwa.delegation.service.document.PlanItemService;
+import org.apache.tomcat.util.http.fileupload.util.Streams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
@@ -21,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/applications")
@@ -31,6 +34,8 @@ public class ApplicationController {
 
     @Autowired
     ApplicationService applicationService;
+    @Autowired
+    DelegationService delegationService;
     @Autowired
     EmployeeService employeeService;
     @Autowired
@@ -41,7 +46,7 @@ public class ApplicationController {
     PasswordEncoder passwordEncoder;
 
     @GetMapping
-    ResponseEntity<Set<Application>> getAllApplications(@RequestParam(required = false) Integer empId,
+    ResponseEntity<Set<Application>> getAllApplications(@RequestParam(required = false) Integer requestEmployee,
                                                         @AuthenticationPrincipal(expression = "employee") Employee loggedInEmployee) {
 
         Optional<Employee> employeeOptional;
@@ -49,12 +54,12 @@ public class ApplicationController {
         Department department = departmentService.getByEmployee(loggedInEmployee).orElseGet(Department::new);
         switch (loggedInEmployee.getRole()) {
             case ROLE_ADMIN:
-                employeeOptional = employeeService.getById(empId);
+                employeeOptional = employeeService.getById(requestEmployee);
                 break;
 
             case ROLE_HEAD:
-                if (department.getEmployees().stream().anyMatch(employee -> empId == employee.getId())) {
-                    employeeOptional = employeeService.getById(empId);
+                if (department.getEmployees().stream().anyMatch(employee -> requestEmployee == employee.getId())) {
+                    employeeOptional = employeeService.getById(requestEmployee);
                 } else {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
                 }
@@ -96,8 +101,8 @@ public class ApplicationController {
     @PutMapping("/{id}")
     @Secured("ROLE_HEAD")
     ResponseEntity<Application> updateStatus(@PathVariable Long id,
-                                            @RequestParam(required = true) ApplicationStatus status,
-                                            @AuthenticationPrincipal(expression = "employee") Employee head){
+                                                             @RequestParam(required = true) ApplicationStatus status,
+                                                             @AuthenticationPrincipal(expression = "employee") Employee head){
         Optional<Application> applicationOptional = applicationService.getById(id);
         Employee applyingEmployee;
         Application application;
@@ -112,6 +117,15 @@ public class ApplicationController {
         if (applyingEmployee.getDepartment().getId() == head.getDepartment().getId()){
 
             application.setStatus(status);
+
+            switch (application.getStatus()){
+                case PENDING:
+
+                case APPROVED:
+                    Delegation delegation = new Delegation(application);
+                    delegation.setNumber(application.getNumber());
+                    delegationService.save(delegation);
+            }
 
             return ResponseEntity.of(applicationService.sendApplication(application));
         }else{

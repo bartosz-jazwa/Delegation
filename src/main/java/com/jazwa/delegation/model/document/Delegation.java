@@ -1,39 +1,55 @@
 package com.jazwa.delegation.model.document;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jazwa.delegation.model.Employee;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import javax.persistence.ManyToOne;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Currency;
-import java.util.List;
 import java.util.Locale;
+import java.util.spi.LocaleNameProvider;
 
-//@Entity
+@Entity
 public class Delegation {
-    //@Id
+    @Id
     private long number;
+    @ManyToOne
+    @JsonManagedReference
     private Employee employee;
     private String  project;
     private Locale country;
-    private TravelTo travelTo;
-    private TravelBack travelBack;
+    private String city;
+//    private TravelTo travelTo;
+//    private TravelBack travelBack;
     private Float advanceAmount;
     private Currency advanceCurrency;
     private Float sumToPay;
     private DelegationStatus status;
-    private LocalDate fileDate;
-    private List<Bill> bills;
+    private LocalDate submitDate;
+//    private List<Bill> bills;
 
 
-    public Float calcDiet(Float rate){
+    public Delegation() {
+    }
+
+    public Delegation(Application application) {
+        this.number = application.getNumber();
+        this.employee = application.getEmployee();
+        this.project = application.getProject();
+        this.country = application.getCountry();
+        this.city = application.getCity();
+        this.advanceAmount = application.getAdvanceAmount();
+        this.advanceCurrency = Currency.getInstance(this.country);
+        this.sumToPay = 200.0f;
+        this.status = DelegationStatus.FILED;
+        this.submitDate = LocalDate.now();
+    }
+
+
+    /*public Float calcDiet(Float rate){
 
         Duration duration = Duration.between(
                 travelTo.getCrossBorderTime(),
@@ -58,7 +74,7 @@ public class Delegation {
 
         diet = diet+ fullDays*rate;
         return diet;
-    }
+    }*/
 
     public long getNumber() {
         return number;
@@ -82,23 +98,24 @@ public class Delegation {
 
     public void setCountry(Locale country) {
         this.country = country;
+
     }
 
-    public TravelTo getTravelTo() {
+    /*public TravelTo getTravelTo() {
         return travelTo;
-    }
+    }*/
 
-    public void setTravelTo(TravelTo travelTo) {
+    /*public void setTravelTo(TravelTo travelTo) {
         this.travelTo = travelTo;
-    }
+    }*/
 
-    public TravelBack getTravelBack() {
+   /* public TravelBack getTravelBack() {
         return travelBack;
-    }
+    }*/
 
-    public void setTravelBack(TravelBack travelBack) {
+    /*public void setTravelBack(TravelBack travelBack) {
         this.travelBack = travelBack;
-    }
+    }*/
 
     public Float getAdvance() {
         return advanceAmount;
@@ -108,19 +125,27 @@ public class Delegation {
         this.advanceAmount = advance;
     }
 
-    public List<Bill> getBills() {
+/*    public List<Bill> getBills() {
         return bills;
-    }
+    }*/
 
-    public void setBills(List<Bill> bills) {
+/*    public void setBills(List<Bill> bills) {
         this.bills = bills;
+    }*/
+
+    public LocalDate getSubmitDate() {
+        return submitDate;
     }
 
-    public LocalDate getFileDate() {
-        return fileDate;
+    public void setSubmitDate(LocalDate fileDate) {
+        this.submitDate = fileDate;
     }
 
-    public void setFileDate(LocalDate fileDate) {
-        this.fileDate = fileDate;
+    public Currency getAdvanceCurrency() {
+        return advanceCurrency;
+    }
+
+    public void setAdvanceCurrency(Currency advanceCurrency) {
+        this.advanceCurrency = advanceCurrency;
     }
 }
