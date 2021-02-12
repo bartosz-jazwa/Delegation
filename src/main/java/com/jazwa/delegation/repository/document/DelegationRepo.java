@@ -13,4 +13,5 @@ import java.util.Set;
 public interface DelegationRepo extends JpaRepository<Delegation,Long> {
     List<Delegation> findAllByEmployee(Employee employee);
     List<Delegation> findAllByStatus(DelegationStatus status);
+    List<Delegation> findAllByProject(String project);
 }

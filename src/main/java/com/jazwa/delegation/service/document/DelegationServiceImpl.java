@@ -36,4 +36,9 @@ public class DelegationServiceImpl implements DelegationService {
     public List<Delegation> getAll() {
         return delegationRepo.findAll();
     }
+
+    @Override
+    public List<Delegation> getByProject(String project) {
+        return delegationRepo.findAllByProject(project);
+    }
 }

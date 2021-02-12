@@ -11,8 +11,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface ApplicationService {
-    Optional<Application> sendApplication(Application application);
-    Optional<Application> approveApplication(Long id);
+    Optional<Application> save(Application application);
+    Optional<Application> approveApplication(Application application);
     Optional<Application> rejectApplication(Long id);
     Optional<Application> forwardApplication(Long id);
     Optional<Application> getById(Long id);

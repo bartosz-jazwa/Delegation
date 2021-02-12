@@ -13,4 +13,5 @@ public interface DelegationService {
     Optional<Delegation> save(Delegation delegation);
     List<Delegation> getByEmployee(Employee employee);
     List<Delegation> getAll();
+    List<Delegation> getByProject(String project);
 }

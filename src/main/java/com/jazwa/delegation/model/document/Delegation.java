@@ -1,16 +1,14 @@
 package com.jazwa.delegation.model.document;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.jazwa.delegation.model.Employee;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import java.time.Duration;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Currency;
+import java.util.List;
 import java.util.Locale;
-import java.util.spi.LocaleNameProvider;
 
 @Entity
 public class Delegation {
@@ -29,7 +27,9 @@ public class Delegation {
     private Float sumToPay;
     private DelegationStatus status;
     private LocalDate submitDate;
-//    private List<Bill> bills;
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "delegation")
+    @JsonBackReference
+    private List<Bill> bills;
 
 
     public Delegation() {
@@ -44,7 +44,7 @@ public class Delegation {
         this.advanceAmount = application.getAdvanceAmount();
         this.advanceCurrency = Currency.getInstance(this.country);
         this.sumToPay = 200.0f;
-        this.status = DelegationStatus.FILED;
+        this.status = DelegationStatus.INIT;
         this.submitDate = LocalDate.now();
     }
 
@@ -147,5 +147,21 @@ public class Delegation {
 
     public void setAdvanceCurrency(Currency advanceCurrency) {
         this.advanceCurrency = advanceCurrency;
+    }
+
+    public List<Bill> getBills() {
+        return bills;
+    }
+
+    public void setBills(List<Bill> bills) {
+        this.bills = bills;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 }

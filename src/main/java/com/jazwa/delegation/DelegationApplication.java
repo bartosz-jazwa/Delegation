@@ -5,6 +5,8 @@ import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.Role;
 import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.model.document.ApplicationStatus;
+import com.jazwa.delegation.model.document.Bill;
+import com.jazwa.delegation.model.document.Payment;
 import com.jazwa.delegation.repository.DepartmentRepo;
 import com.jazwa.delegation.repository.EmployeeRepo;
 import com.jazwa.delegation.repository.document.ApplicationRepo;
@@ -15,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.Currency;
 import java.util.Locale;
 
 @SpringBootApplication
@@ -89,5 +92,13 @@ public class DelegationApplication implements CommandLineRunner {
         app2.setCountry(Locale.CANADA);
         app2.setEmployee(jan);
         applicationRepo.save(app2);
+
+        //Bill bill = new Bill("12/2010",LocalDate.now(), Currency.getInstance(Locale.CANADA),"proba zaplaty", 25.5f,9876, Payment.CARD);
+       // bill.getValue();
+      //  bill.getBillNumber();
+
+        Bill bill = new Bill("12/2010",LocalDate.now(), Currency.getInstance(Locale.CANADA),"proba zaplaty", 25.5f,9876, Payment.CASH);
+        bill.getValue();
+
     }
 }

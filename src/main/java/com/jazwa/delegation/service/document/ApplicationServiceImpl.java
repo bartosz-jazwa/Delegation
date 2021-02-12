@@ -4,8 +4,11 @@ import com.jazwa.delegation.model.Department;
 import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.model.document.ApplicationStatus;
+import com.jazwa.delegation.model.document.Bill;
+import com.jazwa.delegation.model.document.Delegation;
 import com.jazwa.delegation.repository.DepartmentRepo;
 import com.jazwa.delegation.repository.document.ApplicationRepo;
+import com.jazwa.delegation.repository.document.DelegationRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,18 +22,25 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Autowired
     ApplicationRepo applicationRepo;
-
+    @Autowired
+    DelegationRepo delegationRepo;
     @Autowired
     DepartmentRepo departmentRepo;
 
     @Override
-    public Optional<Application> sendApplication(Application application) {
+    public Optional<Application> save(Application application) {
         return Optional.ofNullable(applicationRepo.save(application));
     }
 
     @Override
-    public Optional<Application> approveApplication(Long id) {
-        return Optional.empty();
+    public Optional<Application> approveApplication(Application application) {
+        Delegation delegation = new Delegation(application);
+        Bill bill = new Bill();
+        List<Bill> bills = new ArrayList<>();
+        bills.add(bill);
+        delegation.setBills(bills);
+        delegationRepo.save(delegation);
+        return Optional.ofNullable(applicationRepo.save(application));
     }
 
     @Override

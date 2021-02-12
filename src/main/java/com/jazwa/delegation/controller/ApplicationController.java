@@ -6,27 +6,21 @@ import com.jazwa.delegation.model.Employee;
 import com.jazwa.delegation.model.document.Application;
 import com.jazwa.delegation.model.document.ApplicationStatus;
 import com.jazwa.delegation.model.document.Delegation;
-import com.jazwa.delegation.model.document.PlanItem;
 import com.jazwa.delegation.service.DepartmentService;
 import com.jazwa.delegation.service.EmployeeService;
 import com.jazwa.delegation.service.document.ApplicationService;
 import com.jazwa.delegation.service.document.DelegationService;
 import com.jazwa.delegation.service.document.PlanItemService;
-import org.apache.tomcat.util.http.fileupload.util.Streams;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/applications")
@@ -93,7 +87,7 @@ public class ApplicationController {
 
         Application application = new Application(applicationDto);
         application.setEmployee(loggedInEmployee);
-        return ResponseEntity.of(applicationService.sendApplication(application));
+        return ResponseEntity.of(applicationService.save(application));
     }
 
     // TODO approved application becomes delegation
@@ -122,12 +116,11 @@ public class ApplicationController {
                 case PENDING:
 
                 case APPROVED:
-                    Delegation delegation = new Delegation(application);
-                    delegation.setNumber(application.getNumber());
-                    delegationService.save(delegation);
-            }
+                    return ResponseEntity.of(applicationService.approveApplication(application));
 
-            return ResponseEntity.of(applicationService.sendApplication(application));
+                default:
+                    return ResponseEntity.of(applicationService.save(application));
+            }
         }else{
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
