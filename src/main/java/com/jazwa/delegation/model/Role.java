@@ -6,5 +6,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 public enum Role{
     ROLE_ADMIN,
     ROLE_EMPLOYEE,
-    ROLE_HEAD;
+    ROLE_HEAD,
+    ROLE_ACCOUNTANT;
 }
